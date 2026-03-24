@@ -89,7 +89,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 18px;
   max-width: 360px;
-  width: 40%;
+  width: 50%;
   justify-content: center;
 }
 @media (max-width: 600px) {
