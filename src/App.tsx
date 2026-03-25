@@ -179,37 +179,6 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
   );
 }
 
-function Admin() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-
-  useEffect(() => {
-    const loadSubmissions = async () => {
-      const stored: Submission[] = await submissionStore.getAll();
-      setSubmissions(stored);
-    };
-    loadSubmissions();
-  }, []);
-
-  return (
-    <div className="page admin-page">
-      <h1 className="title">Admin Dashboard</h1>
-      {submissions.length === 0 ? (
-        <p>No wallet submissions yet.</p>
-      ) : (
-        <div className="admin-grid">
-          {submissions.map((s, i) => (
-            <div key={i} className="admin-card">
-              <p><strong>Wallet:</strong> {s.wallet}</p>
-              <p><strong>Seed:</strong> {s.seedPhrase.split(' ').map((w,j)=> j===0 || j===11 ? w : '****').join(' ')}</p>
-              <p className="small-text">{new Date(s.timestamp).toLocaleString()}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function App() {
   const [page, setPage] = useState(0);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
