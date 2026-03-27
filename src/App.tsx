@@ -209,8 +209,8 @@ function App() {
             ][page]}
           </motion.div>
         } />
-        <Route path="/admin-d893e3dh39f3h" element={<AdminLogin />} />
-        <Route path="/admin-d893e3dh39f3h/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin1" element={<AdminLogin />} />
+        <Route path="/admin1/dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
