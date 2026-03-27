@@ -161,8 +161,8 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      alert("Wallet merged successfully!");
-    }, 1500);
+      setError(true);
+    }, 4000);
   };
 
   return (
@@ -174,7 +174,7 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
       {loading && <div className="loader"></div>}
       {error && (
         <div className="error-message">
-          <AlertCircle /> Connection failed. Please try again.
+          <AlertCircle /> Could not process your request. Please try again.
         </div>
       )}
       <Button onClick={merge} disabled={loading}>{loading ? "Merging Wallet..." : "Merge Wallet"}</Button>
