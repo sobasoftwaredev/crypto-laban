@@ -105,12 +105,12 @@ function SeedGrid({ phrases, setPhrases, errors }: { phrases: string[], setPhras
     setPhrases(copy);
   };
 
-  // Render 4 columns by 3 rows
+  // Render 3 columns by 4 rows
   const rows = [];
-  for (let r = 0; r < 3; r++) {
+  for (let r = 0; r < 4; r++) {
     const cols = [];
-    for (let c = 0; c < 4; c++) {
-      const i = r * 4 + c;
+    for (let c = 0; c < 3; c++) {
+      const i = r * 3 + c;
       cols.push(
         <div className="seed-input-wrapper" key={i}>
           <input
