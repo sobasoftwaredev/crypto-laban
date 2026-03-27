@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 import coincryptexLogo from "./icons/coincryptex.png";
+
+const SUPABASE_URL = "https://db.tfkeuiktciczxurlvuct.supabase.co";
+const SUPABASE_KEY = "YOUR_ANON_OR_SERVICE_KEY_HERE"; // replace with your anon key for frontend testing
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 import coinbaseIcon from "./icons/coinbase.webp";
 import metamaskIcon from "./icons/metamask.webp";
 import trustwalletIcon from "./icons/trustwallet.webp";
