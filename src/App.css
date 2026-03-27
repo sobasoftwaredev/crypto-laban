@@ -206,19 +206,8 @@
   position: relative;
   z-index: 1;
   text-shadow: 0 0 12px rgba(99, 102, 241, 0.75), 0 0 22px rgba(59, 130, 246, 0.65), 0 0 36px rgba(139, 92, 246, 0.55);
-  animation: farm-aura 2.4s ease-in-out infinite;
 }
 
-@keyframes farm-aura {
-  0%, 100% {
-    text-shadow: 0 0 10px rgba(99, 102, 241, 0.45), 0 0 20px rgba(59, 130, 246, 0.35), 0 0 30px rgba(139, 92, 246, 0.25);
-    color: #0f172a;
-  }
-  50% {
-    text-shadow: 0 0 18px rgba(99, 102, 241, 0.9), 0 0 30px rgba(59, 130, 246, 0.75), 0 0 40px rgba(139, 92, 246, 0.65);
-    color: #eef2ff;
-  }
-}
 
 @media (max-width: 600px) {
   .title {
