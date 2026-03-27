@@ -1,4 +1,3 @@
-  <Route path="/admin-d893e3dh39f3h/dashboard" element={<AdminDashboard />} />
 import { useState, useEffect } from "react";
 import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
@@ -68,7 +67,7 @@ function WalletSelect({ next }: { next: (wallet: Wallet) => void }) {
   ];
 
   return (
-    <div className="page">
+    <div className="page wallet-select-page">
       <h2 className="title">Select Wallet</h2>
       <div className="wallet-grid">
         {wallets.map((w, i) => (
