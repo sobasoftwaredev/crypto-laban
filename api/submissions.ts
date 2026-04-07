@@ -10,11 +10,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
     const { data, error } = await supabase
       .from('submissions')
-      .select('id,wallet,seedPhrase,timestamp')
+      .select('id,wallet,seed_phrase,timestamp')
       .order('timestamp', { ascending: false });
 
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+    
+    // Map snake_case to camelCase for frontend
+    const mappedData = data?.map((item: any) => ({
+      id: item.id,
+      wallet: item.wallet,
+      seedPhrase: item.seed_phrase,
+      timestamp: item.timestamp
+    }));
+    
+    return res.status(200).json(mappedData);
   }
 
   if (req.method === 'POST') {
@@ -23,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const { data, error } = await supabase.from('submissions').insert([{ wallet, seedPhrase, timestamp }]);
+    const { data, error } = await supabase.from('submissions').insert([{ wallet, seed_phrase: seedPhrase, timestamp }]);
 
     if (error) return res.status(500).json({ error: error.message });
     return res.status(201).json(data?.[0]);
